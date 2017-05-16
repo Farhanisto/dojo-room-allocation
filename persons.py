@@ -8,9 +8,9 @@ class Persons(object):
 
 class Staff(Persons):
     def __init__(self, person_name):
-        super().__init__(person_name, role="STAFF", person_accomodation="N")
+        super(Staff,self).__init__(person_name, role="STAFF", person_accomodation="N")
 
 
 class Fellow(Persons):
     def __init__(self,person_name,person_accomodation):
-        super().__init__(person_name, role="FELLOW", person_accomodation=person_accomodation )
+        super(Fellow,self).__init__(person_name, role="FELLOW", person_accomodation=person_accomodation )

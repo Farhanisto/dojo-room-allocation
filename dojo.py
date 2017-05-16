@@ -90,5 +90,3 @@ class Dojo(object):
             elif person_accomodation == "N":
                 print("{} has been added to the room {} ".format(person.person_name, room_random.room_name))
                 room_random.room_occupants.append(person)
-
-
