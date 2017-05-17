@@ -89,8 +89,8 @@ class App(cmd.Cmd):
         """
 
         first_name = arg["<first_name>"]
-        role = arg["<role>"]
-        accommodation = arg["<wants_accommodation>"]
+        role = arg["<role>"].upper()
+        accommodation = arg["<wants_accommodation>"].upper()
         if accommodation is None:
             accommodation = "N"
         print(self.dojo.add_persons(first_name, role, accommodation))
