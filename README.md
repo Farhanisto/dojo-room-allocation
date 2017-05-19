@@ -3,7 +3,7 @@
 ### intro
 This is a commandline application that allows you to add rooms and people.And assigns people rooms depending on their roles. The project was developed using and runs on python 3.5 +.
 
-[![IMAGE ALT TEXT HERE]](https://asciinema.org/a/3ev3kc4vzvbkfgdw9uidndlvp)
+[![Click here to check video of the app in usage]](https://asciinema.org/a/3ev3kc4vzvbkfgdw9uidndlvp)
 
 ### Getting started
 ---
