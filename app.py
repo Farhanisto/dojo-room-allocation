@@ -4,19 +4,19 @@ Dojo
 Usage:
      Dojo create_room  <room_type> <room_name>...
      Dojo add_persons <name> <role> [<wants_accommodation>]
-
-
+     Dojo print_room  <room_name>
+     Dojo print_allocations  [<file_name>]
+     Dojo quit
 
 
 Options:
     -i, --interactive  Interactive Mode
     -h, --help Show this screen and exit
-    --baud=<n>  Baudrate [default: 9600]
 """
 
 import cmd
 from dojo import Dojo
-from docopt import docopt,DocoptExit
+from docopt import docopt, DocoptExit
 
 
 
@@ -59,7 +59,9 @@ class App(cmd.Cmd):
     print("")
     print("1.  create_room <room_type> <room_name> ...")
     print("2.  add_persons <name> <role> [<wants_accommodation>]")
-    print("3. quit")
+    print("3.  print_room <room_name>")
+    print("4.  print_allocations [<file_name>]")
+    print("5. quit")
     print("")
 
     prompt = '(Dojo)'
@@ -76,11 +78,6 @@ class App(cmd.Cmd):
         if room_name and room_type:
             self.dojo.create_room(room_type,room_name)
 
-
-
-
-
-
     @docopt_cmd
     def do_add_persons(self, arg):
 
@@ -90,10 +87,12 @@ class App(cmd.Cmd):
 
         first_name = arg["<first_name>"]
         role = arg["<role>"].upper()
-        accommodation = arg["<wants_accommodation>"].upper()
+        accommodation = arg["<wants_accommodation>"]
         if accommodation is None:
             accommodation = "N"
-        print(self.dojo.add_persons(first_name, role, accommodation))
+
+        accommodation.upper()
+        self.dojo.add_persons(first_name, role, accommodation)
 
     @staticmethod
     def do_quit(self):
@@ -105,10 +104,27 @@ class App(cmd.Cmd):
         print('THIS IS ANDELA')
         exit()
 
+    @docopt_cmd
+    def do_print_room(self, arg):
+        """
+        Usage: print_room <room_name>
+        """
+        room_name = arg["<room_name>"]
+        if room_name is not None:
+            self.dojo.print_room(room_name)
 
-if __name__=="__main__":
+    @docopt_cmd
+    def do_print_allocations(self, arg):
+
+        """
+        Usage: print_allocations [<filename>]
+        """
+        self.dojo.print_allocations(arg["<filename>"])
+
+
+if __name__ == "__main__":
     try:
         App().cmdloop()
     except KeyboardInterrupt:
         print("Have a nice day")
-        print("TIA")
+        print("THIS IS ANDELA")

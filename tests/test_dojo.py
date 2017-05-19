@@ -1,5 +1,6 @@
 import unittest
 from dojo import Dojo
+import sys
 
 
 class TestRoomCreation(unittest.TestCase):
@@ -30,7 +31,7 @@ class TestRoomCreation(unittest.TestCase):
 
     def test_add_persons_invalid_role(self):
         self.dojo.create_room("office", ["blue"])
-        self.dojo.add_persons("Farhan Abdi", 'jobless', "N")
+        self.dojo.add_persons("Farhan Abdi", 'ljjlll', "N")
         self.assertEqual(len(self.dojo.persons_total), 0)
 
     def test_add_persons_Fellow(self):
@@ -46,7 +47,7 @@ class TestRoomCreation(unittest.TestCase):
         self.assertEqual(len(self.dojo.persons_staff), 1)
 
     def test_add_persons_staff_to_offices(self):
-        self.dojo.create_room( "office", ['blue'])
+        self.dojo.create_room("office", ['blue'])
         self.dojo.add_persons("farhan", "STAFF", "Y")
         self.assertEqual(len(self.dojo.offices), 1)
         self.assertEqual(len(self.dojo.living_space), 0)
@@ -65,3 +66,19 @@ class TestRoomCreation(unittest.TestCase):
         self.dojo.create_room("office", ["blue"])
         self.dojo.create_room("office", ["blue"])
         self.assertEqual(len(self.dojo.offices), 1)
+
+    def test_print_rooms(self):
+        self.dojo.create_room("office", ["blue"])
+        self.dojo.add_persons("eldi", "STAFF", "N")
+        self.dojo.print_room("blue")
+        value = sys.stdout
+        output = value.getvalue()
+        self.assertIn('eldi', output)
+
+    def test_print_allocations_on_screen(self):
+        self.dojo.create_room("office", ["blue"])
+        self.dojo.add_persons("eldi", "STAFF", "N")
+        self.dojo.print_allocations()
+        value = sys.stdout
+        output = value.getvalue()
+        self.assertIn('eldi', output)
