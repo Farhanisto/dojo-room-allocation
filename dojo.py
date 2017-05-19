@@ -119,10 +119,10 @@ class Dojo(object):
         else:
             for room in self.rooms:
                 if len(room.room_occupants) > 0:
-                    people = []
+
                     for occupant in room.room_occupants:
-                        people.append(occupant.person_name)
-                    str1 = ', '.join(str(e) for e in people)
+                        self.allocated.append(occupant.person_name)
+                    str1 = ', '.join(str(e) for e in self.allocated)
                     print("\n"
                           "{} \n".format(room.room_name),
                           "\n"
