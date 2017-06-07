@@ -10,10 +10,10 @@ class Room(object):
 
 class Office(Room):
     def __init__(self, room_name):
-        super(Office, self).__init__(room_name, room_type="office", room_size=5 )
+        super(Office, self).__init__(room_name, room_type="office", room_size=6)
 
 class Living(Room):
     def __init__(self, room_name):
-        super(Living, self).__init__(room_name, room_type='living', room_size=3)
+        super(Living, self).__init__(room_name, room_type='living', room_size=4)
 
 

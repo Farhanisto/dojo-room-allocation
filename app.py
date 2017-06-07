@@ -6,6 +6,7 @@ Usage:
      Dojo add_persons <name> <role> [<wants_accommodation>]
      Dojo print_room  <room_name>
      Dojo print_allocations  [<file_name>]
+     Dojo print_unallocated  [<file_name>]
      Dojo quit
 
 
@@ -61,7 +62,8 @@ class App(cmd.Cmd):
     print("2.  add_persons <name> <role> [<wants_accommodation>]")
     print("3.  print_room <room_name>")
     print("4.  print_allocations [<file_name>]")
-    print("5. quit")
+    print("5.  print_unallocated [<file_name>]")
+    print("6. quit")
     print("")
 
     prompt = '(Dojo)'
@@ -120,6 +122,15 @@ class App(cmd.Cmd):
         Usage: print_allocations [<filename>]
         """
         self.dojo.print_allocations(arg["<filename>"])
+
+    @docopt_cmd
+    def do_print_unallocated(self, arg):
+
+        """
+        Usage: print_unallocated [<filename>]
+        """
+        fn = arg["<filename>"]
+        self.dojo.print_unallocated()
 
 
 if __name__ == "__main__":
