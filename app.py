@@ -68,6 +68,8 @@ class App(cmd.Cmd):
     print("4.  print_allocations [<file_name>]")
     print("5.  print_unallocated [<file_name>]")
     print("6.  reallocate_person <person_name> <room_name>")
+    print("7.  save_state [<file_name>] ")
+    print("6.  load_state [<file_name>]")
     print("7. quit")
     print("")
 
