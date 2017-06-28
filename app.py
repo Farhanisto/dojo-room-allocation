@@ -2,11 +2,15 @@
 Dojo
 
 Usage:
-     Dojo create_room  <room_type> <room_name>...
+     Dojo create_room  <room_type> <room_name>
      Dojo add_persons <name> <role> [<wants_accommodation>]
      Dojo print_room  <room_name>
      Dojo print_allocations  [<file_name>]
      Dojo print_unallocated  [<file_name>]
+     Dojo reallocate_person <person_name> <room_name>
+     Dojo load_people [<file_name>]
+     Dojo save_state [<file_name>]
+     Dojo load_state [<file_name>]
      Dojo quit
 
 
@@ -63,7 +67,8 @@ class App(cmd.Cmd):
     print("3.  print_room <room_name>")
     print("4.  print_allocations [<file_name>]")
     print("5.  print_unallocated [<file_name>]")
-    print("6. quit")
+    print("6.  reallocate_person <person_name> <room_name>")
+    print("7. quit")
     print("")
 
     prompt = '(Dojo)'
@@ -76,9 +81,11 @@ class App(cmd.Cmd):
         Usage: create_room <room_type> <room_name>...
         """
         room_name = arg["<room_name>"]
+        print(len(room_name))
+
         room_type = arg["<room_type>"]
         if room_name and room_type:
-            self.dojo.create_room(room_type,room_name)
+            self.dojo.create_room(room_type, room_name)
 
     @docopt_cmd
     def do_add_persons(self, arg):
@@ -129,8 +136,39 @@ class App(cmd.Cmd):
         """
         Usage: print_unallocated [<filename>]
         """
-        fn = arg["<filename>"]
-        self.dojo.print_unallocated()
+        self.dojo.print_unallocated(arg["<filename>"])
+
+    @docopt_cmd
+    def do_reallocate_person(self, arg):
+
+        """
+        Usage: reallocate_person <person_name> <room_name>
+        """
+        self.dojo.reallocate_person(arg["<person_name>"], arg["<room_name>"])
+
+    @docopt_cmd
+    def do_load_people(self,arg):
+
+        """
+        Usage: load_people [<filename>]
+        """
+        self.dojo.load_people(arg["<filename>"])
+
+    @docopt_cmd
+    def do_save_state(self, arg):
+
+        """
+        Usage: save_state [<filename>]
+        """
+        self.dojo.save_state(arg["<filename>"])
+
+    @docopt_cmd
+    def do_load_state(self, arg):
+
+        """
+        Usage: save_state [<filename>]
+        """
+        self.dojo.load_state(arg["<filename>"])
 
 
 if __name__ == "__main__":

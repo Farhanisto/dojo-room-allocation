@@ -16,3 +16,4 @@ class Staff(Persons):
 class Fellow(Persons):
     def __init__(self,person_name,person_accomodation):
         super(Fellow, self).__init__(person_name, role="FELLOW", person_accomodation=person_accomodation)
+
