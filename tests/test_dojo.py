@@ -14,10 +14,6 @@ class TestRoomCreation(unittest.TestCase):
         self.dojo = Dojo()
         self.file = open("allocate.txt", "w+")
 
-
-    def test_create_room(self):
-        self.assertEqual(len(self.dojo.rooms), 0)
-
     def test_invalid_room(self):
         self.dojo.create_room("kenya", "kenya")
         self.assertEqual(len(self.dojo.rooms), 0)
@@ -40,8 +36,7 @@ class TestRoomCreation(unittest.TestCase):
         self.assertEqual(len(self.dojo.persons_total), 0)
 
     def test_add_persons_Fellow(self):
-        self.dojo.create_room(["blue"], "office")
-        self.dojo.create_room(["blue"], "living space")
+
         self.dojo.add_persons("Farhan Abdi", 'FELLOW', 'Y')
         self.assertEqual(len(self.dojo.persons_fellow), 1)
 
@@ -138,7 +133,6 @@ class TestRoomCreation(unittest.TestCase):
     def tearDown(self):
         self.file.close()
         os.remove("allocate.txt")
-
 
 
 

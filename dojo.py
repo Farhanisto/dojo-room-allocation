@@ -11,7 +11,10 @@ from models.persons import Staff
 from models.room import Living
 from models.room import Office
 
-from sqlalchemy import Table,MetaData,select
+
+from sqlalchemy import Table, MetaData
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 class Dojo(object):
     """Program to create rooms and add people to the rooms in accordance to their roles"""
@@ -107,8 +110,8 @@ class Dojo(object):
                     self.persons_total.append(person)
 
         except IndexError:
+            self.unallocated.append(person)
             print("You have no rooms to start with , add rooms first")
-
 
     def print_room(self, room_name):
 
@@ -218,6 +221,8 @@ class Dojo(object):
         if filename is None:
             if not self.rooms:
                 print("Sorry.No rooms exist. Please create one")
+                for room in self.unallocated:
+                    print(room.person_name)
             else:
                 for room in self.unallocated:
                     print(room.person_name)
@@ -327,110 +332,166 @@ class Dojo(object):
                 print(filename)
                 people_list = open("/Users/farhanabdi/dojo-room-allocation/csvs/"+filename).readlines()
                 print(people_list)
+                for line in people_list:
+
+                    person_details = line.split()
+
+                    if len(person_details) == 4:
+                        f_name = person_details[0]
+                        s_name = person_details[1]
+                        full_name = f_name + s_name
+                        p_type = person_details[2]
+                        p_accomodation = person_details[3]
+                        self.add_persons(full_name, p_type, p_accomodation)
+                    if len(person_details) == 3:
+                        f_name = person_details[0]
+                        s_name = person_details[1]
+                        full_name = f_name + s_name
+                        p_type = person_details[2]
+                        p_accomodation = "N"
+                        self.add_persons(full_name, p_type, p_accomodation)
             else:
                 print("file not in csv directory")
 
     def save_state(self, filename=None):
-        metadata = MetaData(bind=db_room.engine)
+        if not filename:
+            db_name = 'sqlite:///' + os.path.join(db_room.base_dir, 'dojo.db')
+            engine = create_engine(db_name)
+            metadata = MetaData(bind=db_room.engine)
+            session = sessionmaker(bind=engine)
+            s = session()
 
-        for room in self.rooms:
+            for room in self.rooms:
 
-            if db_room.s.query(db_room.Rooms).filter(room.room_name == db_room.Rooms.room_name).count():
-                print("this room is existing ...")
-                query_size = db_room.s.query(db_room.Persons).filter(db_room.Rooms.room_name ==
-                                                                     db_room.Persons.room_name)
-                list_people = query_size.all()
-                print(len(list_people))
+                if s.query(db_room.Rooms).filter(room.room_name == db_room.Rooms.room_name).count():
+                    print("this room is existing ...")
+                    query_size = s.query(db_room.Persons).filter(db_room.Rooms.room_name ==
+                                                                         db_room.Persons.room_name)
+                    list_people = query_size.all()
+                    print(len(list_people))
 
-                if len(list_people) < room.room_size:
-                    print("This rooms exists but has space in it adding this person here :)")
-                    last_person = self.persons_total[-1]
-                    print("last person")
-                    print(last_person.person_name)
-                    tbl = Table(db_room.Persons.__tablename__,metadata, autoload=True)
-                    p_table = tbl.insert()
-                    new_person = p_table.values(person_name=last_person.person_name,
-                                                person_type=last_person.role,
-                                                person_accomodation=last_person.person_accomodation,
-                                                room_name=room.room_name,
-                                                room_type=room.room_type,
-                                                )
-                    conn = db_room.engine.connect()
-                    conn.execute(new_person)
+                    if len(list_people) < room.room_size:
+                        print("This rooms exists but has space in it adding this person here :)")
+                        last_person = self.persons_total[-1]
+                        print("last person")
+                        print(last_person.person_name)
+                        tbl = Table(db_room.Persons.__tablename__, metadata, autoload=True)
+                        p_table = tbl.insert()
+                        new_person = p_table.values(person_name=last_person.person_name,
+                                                    person_type=last_person.role,
+                                                    person_accomodation=last_person.person_accomodation,
+                                                    room_name=room.room_name,
+                                                    room_type=room.room_type,
+                                                    )
+                        conn = db_room.engine.connect()
+                        conn.execute(new_person)
+
+                    else:
+                        print("This room is full and is already in the db :(")
+                        print("This room exists already")
 
                 else:
-                    print("This room is full and is already in the db :(")
-                    print("This room exists already")
+                    print(room)
+                    rms = db_room.Rooms(room_name=room.room_name, room_type=room.room_type)
+                    s.add(rms)
+                    s.commit()
+                    for occupant in room.room_occupants:
+                        prs = db_room.Persons(person_name=occupant.person_name, person_type=occupant.role,
+                                              person_accomodation=occupant.person_accomodation,
+                                              room_name=room.room_name, room_type=room.room_type, rooms=rms)
+                        s.add(prs)
+                        s.commit()
 
-            else:
+        else:
+            engine = create_engine('sqlite:///{}.db'.format(filename))
+            db_room.base.metadata.create_all(engine)
+            session = sessionmaker(bind=engine)
+            s = session()
+            metadata = MetaData(bind=db_room.engine)
+
+            for room in self.rooms:
+
                 print(room)
                 rms = db_room.Rooms(room_name=room.room_name, room_type=room.room_type)
-                db_room.s.add(rms)
-                db_room.s.commit()
+                s.add(rms)
+                s.commit()
                 for occupant in room.room_occupants:
-                    prs= db_room.Persons(person_name=occupant.person_name,person_type=occupant.role,
-                                         person_accomodation=occupant.person_accomodation,
-                                         room_name=room.room_name,room_type=room.room_type,rooms=rms)
-                    db_room.s.add(prs)
-                    db_room.s.commit()
+                    prs = db_room.Persons(person_name=occupant.person_name, person_type=occupant.role,
+                                          person_accomodation=occupant.person_accomodation,
+                                          room_name=room.room_name, room_type=room.room_type, rooms=rms)
+                    s.add(prs)
+                    s.commit()
 
     def load_state(self, filename=None):
-        list_room = db_room.s.query(db_room.Persons).all()
-        for person in list_room:
+        if filename is None:
+            db_name = 'sqlite:///' + os.path.join(db_room.base_dir, 'dojo.db')
+            engine = create_engine(db_name)
+            metadata = MetaData(bind=db_room.engine)
+            session = sessionmaker(bind=engine)
+            s = session()
+            list_room = s.query(db_room.Persons).all()
+            for person in list_room:
 
-            rm_name = person.room_name
-            rm_type = person.room_type
-            person_type = person.person_type
-            print("rm_nm n type")
-            print(rm_name)
-            print(rm_type)
-            print("printing person.room")
-            if rm_type== "office":
-                room_create = Office(person.room_name)
-                if person_type == "STAFF":
-                    staff_obj = Staff(person_name=person.person_name)
-                    room_create.room_occupants.append(staff_obj)
-                    self.rooms.append(room_create)
-                    self.offices.append(room_create)
-                    self.persons_total.append(staff_obj)
-                    self.allocated.append(staff_obj)
-                    print(len(self.rooms))
-                else:
-                    print("Fellow")
-                    staff_obj = Fellow(person_name=person.person_name, person_accomodation=person.person_accomodation)
-                    room_create.room_occupants.append(staff_obj)
-                    self.rooms.append(room_create)
-                    self.offices.append(room_create)
-                    self.persons_total.append(staff_obj)
-                    self.allocated.append(staff_obj)
+                rm_name = person.room_name
+                rm_type = person.room_type
+                person_type = person.person_type
+                print("rm_nm n type")
+                print(rm_name)
+                print(rm_type)
+                print("printing person.room")
+                if rm_type == "office":
+                    room_create = Office(person.room_name)
+                    if person_type == "STAFF":
+                        staff_obj = Staff(person_name=person.person_name)
+                        room_create.room_occupants.append(staff_obj)
+                        self.rooms.append(room_create)
+                        self.offices.append(room_create)
+                        self.persons_total.append(staff_obj)
+                        self.allocated.append(staff_obj)
+                        print(len(self.rooms))
+                    else:
+                        print("Fellow")
+                        staff_obj = Fellow(person_name=person.person_name,
+                                           person_accomodation=person.person_accomodation)
+                        room_create.room_occupants.append(staff_obj)
+                        self.rooms.append(room_create)
+                        self.offices.append(room_create)
+                        self.persons_total.append(staff_obj)
+                        self.allocated.append(staff_obj)
 
+        else:
+            db_name = 'sqlite:///{}'.format(filename)
+            engine = create_engine(db_name)
+            metadata = MetaData(bind=db_room.engine)
+            session = sessionmaker(bind=engine)
+            s = session()
+            list_room = s.query(db_room.Persons).all()
+            for person in list_room:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                rm_name = person.room_name
+                rm_type = person.room_type
+                person_type = person.person_type
+                print("rm_nm n type")
+                print(rm_name)
+                print(rm_type)
+                print("printing person.room")
+                if rm_type == "office":
+                    room_create = Office(person.room_name)
+                    if person_type == "STAFF":
+                        staff_obj = Staff(person_name=person.person_name)
+                        room_create.room_occupants.append(staff_obj)
+                        self.rooms.append(room_create)
+                        self.offices.append(room_create)
+                        self.persons_total.append(staff_obj)
+                        self.allocated.append(staff_obj)
+                        print(len(self.rooms))
+                    else:
+                        print("Fellow")
+                        staff_obj = Fellow(person_name=person.person_name,
+                                           person_accomodation=person.person_accomodation)
+                        room_create.room_occupants.append(staff_obj)
+                        self.rooms.append(room_create)
+                        self.offices.append(room_create)
+                        self.persons_total.append(staff_obj)
+                        self.allocated.append(staff_obj)
 

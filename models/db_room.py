@@ -10,10 +10,9 @@ from sqlalchemy.orm import relationship,backref,sessionmaker
 import os
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-engine = create_engine('sqlite:///' + os.path.join(base_dir, 'dojo.db'))
+db_name = 'sqlite:///' + os.path.join(base_dir, 'dojo.db')
+engine = create_engine(db_name)
 base = declarative_base(engine)
-session = sessionmaker(bind=engine)
-s = session()
 
 
 class Rooms(base):
